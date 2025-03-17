@@ -7,4 +7,4 @@ def extract_para(file_path):
     print(file_path)
     
 if "__name__" == "__main__":
-    extract_para("C:/Users/HP/Desktop/Python/Python-Projects/Python-Projects/ReadMcsFiles.py")
+    extract_para("/Users/siohbon/paper2/Data/Na20250314114647531.dat")
