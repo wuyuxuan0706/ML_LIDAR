@@ -1,7 +1,7 @@
 import numpy as np
 import os
 import matplotlib.pyplot as plt
-from pathlib import Path
+import channel_data
 
 def list_files(directory):
     """列出指定目录下的所有 .dat 文件"""
@@ -44,7 +44,6 @@ def image_plot(altitude, signal, save_path=None):
     plt.ylim(1, 1e4)
     plt.xlabel('Altitude (km)')
     plt.ylabel('Signal')
-    plt.title('Na Lidar Data')
     plt.grid()
     
     if save_path:
@@ -56,37 +55,29 @@ def image_plot(altitude, signal, save_path=None):
 
 if __name__ == "__main__":
     data_path = r"D:\paper2\data"
-    channel = "Na"
-    directory = os.path.join(data_path, channel)
-    
-    # 检查目录是否存在
-    if not os.path.exists(directory):
-        print(f"Directory {directory} does not exist.")
-        exit(1)
-    
-    # 获取所有子文件夹
-    folders = [f.path for f in os.scandir(directory) if f.is_dir()]
-    
+    channel = "K"  # 通道名称
     # 保存图像的目录
     save_base_path = os.path.join(r"D:\paper2\pic", channel)
     if not os.path.exists(save_base_path):
         os.makedirs(save_base_path)  # 如果保存路径不存在，创建它
-    
+        
+    directory = os.path.join(data_path, channel)
+    # 检查目录是否存在
+    if not os.path.exists(directory):
+        print(f"Directory {directory} does not exist.")
+        exit(1)
+    # 获取所有子文件夹
+    folders = [f.path for f in os.scandir(directory) if f.is_dir()]
     # 遍历每个子文件夹
     for folder in folders:
-        Path = os.path.join(folder, "Na")
-        if not os.path.exists(Path):
-            print(f"Path {Path} does not exist.")
-            continue    
-        dat_files = list_files(Path)  # 获取子文件夹中的 .dat 文件
-        for dat_file in dat_files:
-            altitude, signal = extract_para(dat_file)
-            if altitude.size > 0 and signal.size > 0:  # 确保数据不为空
+        class_channel = channel_data.Channel(folder, channel)
+        
+        rows, cols = class_channel.altitude.shape
+        if rows != 0 and cols != 0:  # 确保数据不为空
+            for i in range(rows):
                 # 生成保存路径
-                folder_path = os.path.join(save_base_path,  os.path.basename(folder))
+                folder_path = os.path.join(save_base_path, os.path.basename(folder))
                 if not os.path.exists(folder_path):
                     os.makedirs(folder_path)
-                save_path = os.path.join(folder_path, os.path.basename(dat_file) + ".jpg")   
-                image_plot(altitude, signal, save_path=save_path)
-            else:
-                print(f"No valid data found in {dat_file}")
+                save_path = os.path.join(folder_path, f"{os.path.basename(folder)}_{i}.jpg")
+                image_plot(class_channel.altitude[i], class_channel.signal[i], save_path=save_path)
