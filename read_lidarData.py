@@ -1,40 +1,6 @@
-import numpy as np
 import os
 import matplotlib.pyplot as plt
 import channel_data
-
-def list_files(directory):
-    """列出指定目录下的所有 .dat 文件"""
-    files = []
-    for file in os.listdir(directory):
-        if file.endswith(".dat"):
-            files.append(os.path.join(directory, file))
-    return files
-
-def extract_para(file_path):
-    """从 .dat 文件中提取高度和信号数据"""
-    altitude_array = []
-    signal_array = []
-    start_reading = False
-    
-    with open(file_path, 'r') as file:
-        for line in file:
-            if line.strip().startswith('km'):
-                start_reading = True
-                continue
-            
-            if start_reading:
-                columns = line.strip().split()
-                if columns:
-                    try:
-                        altitude = float(columns[0])  # 第一列作为高度
-                        signal = float(columns[1])    # 第二列作为信号
-                        altitude_array.append(altitude)
-                        signal_array.append(signal)
-                    except (ValueError, IndexError):
-                        continue
-                    
-    return np.array(altitude_array), np.array(signal_array)
 
 def image_plot(altitude, signal, save_path=None):
     """绘制高度-信号图，可选择保存"""
@@ -55,7 +21,7 @@ def image_plot(altitude, signal, save_path=None):
 
 if __name__ == "__main__":
     data_path = r"D:\paper2\data"
-    channel = "K"  # 通道名称
+    channel = "Ca"  # 通道名称
     # 保存图像的目录
     save_base_path = os.path.join(r"D:\paper2\pic", channel)
     if not os.path.exists(save_base_path):

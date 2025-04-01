@@ -107,7 +107,11 @@ class Channel:
                     altitude_array.extend(folder_altitude)
                     combined_signal = folder_signal
                 else:
-                    combined_signal += folder_signal
+                    try:
+                        combined_signal += folder_signal    
+                    except ValueError as e:
+                        print(f"Error adding signals from {subfolder}: {e}")
+                        continue
                 idx += 1
 
         return np.array(altitude_array), combined_signal
