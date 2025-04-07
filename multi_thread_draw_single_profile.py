@@ -1,4 +1,4 @@
-import channel_data
+import read_channel_data_module
 import threading
 import time
 import os
@@ -98,7 +98,7 @@ def main():
                 continue
                 
             try:
-                class_channel = channel_data.Channel(folders[0], chl)
+                class_channel = read_channel_data_module.Channel(folders[0], chl)
                 future = executor.submit(process_channel, class_channel, chl, i, results)
                 futures.append(future)
             except ValueError as e:

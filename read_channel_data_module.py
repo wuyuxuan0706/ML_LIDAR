@@ -12,13 +12,13 @@ def list_files(directory):
 class Channel:
     def __init__(self, file_path, channel=""):
         if channel == "Na": 
-            self.altitude, self.signal = self.Na_channel(file_path)
+            self.altitude, self.signal, self.Time = self.Na_channel(file_path)
         elif channel == "Ca":
-            self.altitude, self.signal = self.Ca_channel(file_path)
+            self.altitude, self.signal, self.Time = self.Ca_channel(file_path)
         elif channel == "K":
-            self.altitude, self.signal = self.K_channel(file_path)
+            self.altitude, self.signal, self.Time = self.K_channel(file_path)
         elif channel == "Fe":
-            self.altitude, self.signal = self.Fe_channel(file_path)
+            self.altitude, self.signal, self.Time = self.Fe_channel(file_path)
         else:
             raise ValueError(f"Unsupported channel: {channel}")
 
@@ -36,13 +36,16 @@ class Channel:
 
         altitude_array = []
         signal_array = []
-
+        time_series = []
         for dat_file in dat_files:
             start_reading = False
             altitude = []
             signal = []
             with open(dat_file, 'r') as file:
                 for line in file:
+                    if line.strip().startswith('Acquistion Start GMT'):
+                        time_string = line.split(" :")[1]
+                        time_series.append(time_string)
                     if line.strip().startswith('km'):
                         start_reading = True
                         continue
@@ -61,7 +64,7 @@ class Channel:
                 altitude_array.append(altitude)
                 signal_array.append(signal)
 
-        return np.array(altitude_array), np.array(signal_array)
+        return np.array(altitude_array), np.array(signal_array), time_series
     
     def Ca_channel(self, file_path):
         """提取Ca通道数据"""
@@ -72,6 +75,7 @@ class Channel:
 
         combined_signal = None  # 用于存储所有子文件夹的信号数据
         altitude_array = []  # 用于存储所有子文件夹的高度数据
+        time_series = []  # 用于存储时间序列数据
         idx = 0  # 用于标记第一个子文件夹
 
         for subfolder in subfolders:
@@ -85,6 +89,9 @@ class Channel:
                 signal = []
                 with open(dat_file, 'r') as file:
                     for line in file:
+                        if line.strip().startswith('#DataStartTime:') and idx == 0:
+                            time_string = line.split(": ")[1]
+                            time_series.append(time_string.strip())
                         if line.strip().startswith('Range'):
                             start_reading = True
                             continue
@@ -114,7 +121,7 @@ class Channel:
                         continue
                 idx += 1
 
-        return np.array(altitude_array), combined_signal
+        return np.array(altitude_array), combined_signal, time_series
 
     def K_channel(self, file_path):
         """提取K通道数据"""
@@ -130,13 +137,18 @@ class Channel:
 
         altitude_array = []
         signal_array = []
-
+        time_series = []  # 用于存储时间序列数据
+        
         for dat_file in dat_files:
             start_reading = False
             altitude = []
             signal = []
             with open(dat_file, 'r') as file:
                 for line in file:
+                    if line.strip().startswith('#DataStartTime:'):
+                        time_string = line.split(": ")[1]
+                        time_series.append(time_string.strip())
+                        
                     if line.strip().startswith('Range'):
                         start_reading = True
                         continue
@@ -155,7 +167,7 @@ class Channel:
                 altitude_array.append(altitude)
                 signal_array.append(signal)
 
-        return np.array(altitude_array), np.array(signal_array)
+        return np.array(altitude_array), np.array(signal_array), time_series
     
     def Fe_channel(self, file_path):
         """Fe通道数据"""
@@ -171,6 +183,7 @@ class Channel:
 
         altitude_array = []
         signal_array = []
+        time_series = []  # 用于存储时间序列数据
 
         for dat_file in dat_files:
             start_reading = False
@@ -178,6 +191,10 @@ class Channel:
             signal = []
             with open(dat_file, 'r') as file:
                 for line in file:
+                    if line.strip().startswith('#DataStartTime:'):
+                        time_string = line.split(": ")[1]
+                        time_series.append(time_string.strip())
+                        
                     if line.strip().startswith('Range'):
                         start_reading = True
                         continue
@@ -196,4 +213,4 @@ class Channel:
                 altitude_array.append(altitude)
                 signal_array.append(signal)
 
-        return np.array(altitude_array), np.array(signal_array)
+        return np.array(altitude_array), np.array(signal_array), time_series

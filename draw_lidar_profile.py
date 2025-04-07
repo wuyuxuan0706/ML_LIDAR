@@ -1,6 +1,6 @@
 import os
 import matplotlib.pyplot as plt
-import channel_data
+import read_channel_data_module
 
 def image_plot(altitude, signal, save_path=None):
     """绘制高度-信号图，可选择保存"""
@@ -36,7 +36,7 @@ if __name__ == "__main__":
     folders = [f.path for f in os.scandir(directory) if f.is_dir()]
     # 遍历每个子文件夹
     for folder in folders:
-        class_channel = channel_data.Channel(folder, channel)
+        class_channel = read_channel_data_module.Channel(folder, channel)
         
         rows, cols = class_channel.altitude.shape
         if rows != 0 and cols != 0:  # 确保数据不为空
